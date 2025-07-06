@@ -382,6 +382,10 @@ def append_additional_system_props(args):
       enable_target_debugging = False
       enable_dalvik_lock_contention_logging = False
     else:
+      # AICP: also set ro.adb.secure for userdebug
+      if config["BuildVariant"] == "userdebug":
+        props.append("ro.adb.secure=1")
+
       # Disable debugging in userdebug builds if PRODUCT_NOT_DEBUGGABLE_IN_USERDEBUG
       # is set.
       if config["ProductNotDebuggableInUserdebug"]:
@@ -389,7 +393,11 @@ def append_additional_system_props(args):
         enable_dalvik_lock_contention_logging = False
 
     # Disallow mock locations by default for user builds
-    props.append("ro.allow.mock.location=0")
+    # AICP: still allow for userdebug
+    if config["BuildVariant"] == "userdebug":
+      props.append("ro.allow.mock.location=1")
+    else:
+      props.append("ro.allow.mock.location=0")
   else:
     # Turn on checkjni for non-user builds.
     props.append("ro.kernel.android.checkjni=1")
